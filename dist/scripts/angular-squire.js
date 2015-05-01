@@ -1,6 +1,6 @@
 /**
 * @preserve angular-squire - angularjs directive for squire rich text editor
-* @version v0.5.0
+* @version v0.5.1
 * @link https://github.com/HourlyNerd/angular-squire
 * @license MIT
 **/
