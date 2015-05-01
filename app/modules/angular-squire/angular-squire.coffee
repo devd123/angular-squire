@@ -1,6 +1,6 @@
 angular
     .module("angular-squire", [])
-    .directive("squire", ->
+    .directive("squire", ['squireService', (squireService) ->
         return {
             restrict: 'E'
             require: "ngModel"
@@ -37,6 +37,7 @@ angular
                     link: LINK_DEFAULT
 
                 updateModel = (value) ->
+                    value = squireService.onChange(value, editor)
                     scope.$evalAsync(->
                         ngModel.$setViewValue(value)
                         if ngModel.$isEmpty(value)
@@ -131,6 +132,10 @@ angular
                         editor.setHTML(scope.body)
                         updateModel(scope.body)
                         haveInteraction = true
+
+                    editor.addEventListener("willPaste", (e) ->
+                        squireService.sanitize(e, editor)
+                    )
 
                     editor.addEventListener("input", ->
                         if haveInteraction
@@ -262,7 +267,7 @@ angular
                         editor[action]()
                         editor.focus()
         }
-    ).directive("squireCover", ->
+    ]).directive("squireCover", ->
         return {
             restrict: 'E'
             replace: true
@@ -302,4 +307,39 @@ angular
                     return editorCtrl.editorVisibility()
 
         }
-    )
+    ).provider("squireService", [ () ->
+        dummysanitize = {clean_node: ((f)-> f)}
+        sanitizer = dummysanitize
+
+        obj =
+            onPaste: (e, editor) ->
+            onChange: (val, editor) ->
+                return val
+            sanitize: (e, editor) ->
+                e.fragment = sanitizer.clean_node(e.fragment)
+
+                obj.onPaste(e, editor)
+
+
+        @onPaste = (cb) ->
+            obj.onPaste = cb if cb
+
+        @onChange = (cb) ->
+            obj.onChange = cb if cb
+
+        @sanitizeOptions = (opts) ->
+            sanitizer = new Sanitize(opts) if opts # https://github.com/gbirke/Sanitize.js
+
+        @strictPaste = (enable) ->
+            if enable
+                sanitizer = new Sanitize({
+                    elements:   ['div', 'span', 'b', 'i']
+                })
+            else
+                sanitizer = dummysanitize
+
+        @$get = ->
+            return obj
+
+        return @
+    ])

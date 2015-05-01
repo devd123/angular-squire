@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="ge-project-manager" ng-app="angular-squire">
+<html class="ge-project-manager" ng-app="as-demo">
 <head>
     <meta charset="UTF-8">
     <title>Angular-Squire</title>
@@ -133,6 +133,15 @@
                     <code>body</code> - binding that contains the initial html contents of the editor, if different from <code>ng-model</code> (optional)<br>
                     <code>ng-model</code> - where does the html go? <strong>required</strong><br>
                     <code>placeholder</code> - placeholder text (optional)
+                </p>
+                <h3>squireServiceProvider</h3>
+                <p><code>squireServiceProvider</code> is available to configure the directive. It has the following methods:</p>
+                <p>
+                    <em>Methods:</em><br>
+                    <code>onPaste(cb)</code> - cb = function(e, editor) - e contains <code>fragment</code> that will be pasted<br>
+                    <code>onChange(cb)</code> - cb = function(value, editor)<br>
+                    <code>strictPaste(isEnabled)</code> - pass true to only allow <code>div, span, b, i</code> elements in pasted content<br>
+                    <code>sanitizeOptions(obj)</code> - Object containing custom <a href="https://github.com/gbirke/Sanitize.js#configuration-object-parameters" target="_blank">sanitize.js options</a> to sanitize pasted content<br>
                 </p>
             </div>
         </div>
