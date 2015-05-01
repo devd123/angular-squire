@@ -1,15 +1,23 @@
 <!DOCTYPE html>
-<html class="ge-project-manager" ng-app="angular-squire">
+<html class="ge-project-manager" ng-app="as-demo">
 <head>
     <meta charset="UTF-8">
     <title>Angular-Squire</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 
-    <link rel="stylesheet" href="css/vendor.css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <!-- build:css(./app) css/vendor.css -->
+    <!-- bower:css -->
+    <!-- endbower -->
+    <!-- endbuild -->
 
-    <link rel="stylesheet" href="css/angular-squire.css">
+    <!-- build:css css/angular-squire.css -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- endbuild -->
+
+    <base href="/">
+
 
 </head>
 <body ng-init="value='<b>HourlyNerd</b> The future of consulting.'">
@@ -20,6 +28,7 @@
         }
     </style>
 
+    <base href="/">
     <form class="form" autocomplete="off">
     <div class="container">
         <h1>Angular-Squire &nbsp;
@@ -125,6 +134,15 @@
                     <code>ng-model</code> - where does the html go? <strong>required</strong><br>
                     <code>placeholder</code> - placeholder text (optional)
                 </p>
+                <h3>squireServiceProvider</h3>
+                <p><code>squireServiceProvider</code> is available to configure the directive. It has the following methods:</p>
+                <p>
+                    <em>Methods:</em><br>
+                    <code>onPaste(cb)</code> - cb = function(e, editor) - e contains <code>fragment</code> that will be pasted<br>
+                    <code>onChange(cb)</code> - cb = function(value, editor)<br>
+                    <code>strictPaste(isEnabled)</code> - pass true to only allow <code>div, span, b, i</code> elements in pasted content<br>
+                    <code>sanitizeOptions(obj)</code> - Object containing custom <a href="https://github.com/gbirke/Sanitize.js#configuration-object-parameters" target="_blank">sanitize.js options</a> to sanitize pasted content<br>
+                </p>
             </div>
         </div>
         <br/>
@@ -141,9 +159,15 @@
     <!-- config.json -->
     <!-- endconfig -->
 
-    <script src="scripts/vendor.js"></script>
+    <!-- build:js(./app) scripts/vendor.js -->
+    <!-- bower:js -->
+    <!-- endbower -->
+    <!-- endbuild -->
 
-    <script src="scripts/angular-squire.js"></script>
+    <!-- build:js scripts/angular-squire.js -->
+    <!-- inject:js -->
+    <!-- endinject -->
+    <!-- endbuild -->
 
 </body>
 </html>
