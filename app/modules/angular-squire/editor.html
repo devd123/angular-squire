@@ -1,19 +1,31 @@
 <div class='angular-squire'>
     <div ng-class="{'editor-hide': !isEditorVisible()}" class='editor-container'>
         <div class="menu">
-            <div class="group">
-                <div title='Bold' ng-click="action('bold')" class="item bold">
+            <div class="group" ng-show="buttonVis.bold || buttonVis.italic || buttonVis.underline">
+                <div title='Bold'
+                     ng-click="action('bold')"
+                     ng-show="buttonVis.bold"
+                     class="item bold">
                     <i class="fa fa-bold"></i>
                 </div>
-                <div title='Italic' ng-click="action('italic')" class="item italic">
+                <div title='Italic'
+                     ng-click="action('italic')"
+                     ng-show="buttonVis.italic"
+                     class="item italic">
                     <i class="fa fa-italic"></i>
                 </div>
-                <div title='Underline' ng-click="action('underline')" class="item underline">
+                <div title='Underline'
+                     ng-click="action('underline')"
+                     ng-show="buttonVis.underline"
+                     class="item underline">
                     <i class="fa fa-underline"></i>
                 </div>
             </div>
-            <div class="group">
-                <div title='Insert Link' class="item add-link" ng-click="popoverShow($event)">
+            <div class="group"  ng-show="buttonVis.link || buttonVis.ol || buttonVis.ul || buttonVis.quote">
+                <div title='Insert Link'
+                     class="item add-link"
+                     ng-show="buttonVis.link"
+                     ng-click="popoverShow($event)">
                     <i class="fa fa-link"></i>
                     <div class="squire-popover">
                         <div class="arrow"></div>
@@ -42,37 +54,64 @@
                         <div class="squire-popover-overlay" ng-click="popoverHide($event, 'makeLink')"></div>
                     </div>
                 </div>
-                <div title='Insert Numbered List' ng-click="action('makeOrderedList')" class="item olist">
+                <div title='Insert Numbered List'
+                     ng-click="action('makeOrderedList')"
+                     ng-show="buttonVis.ol"
+                     class="item olist">
                     <i class="fa fa-list-ol"></i>
                 </div>
-                <div title='Insert List' ng-click="action('makeUnorderedList')" class="item ulist">
+                <div title='Insert List'
+                     ng-click="action('makeUnorderedList')"
+                     ng-show="buttonVis.ul"
+                     class="item ulist">
                     <i class="fa fa-list-ul"></i>
                 </div>
-                <div title='Quote' ng-click="action('increaseQuoteLevel')" class="item quote">
+                <div title='Quote'
+                     ng-click="action('increaseQuoteLevel')"
+                     ng-show="buttonVis.quote"
+                     class="item quote">
                     <i class="fa fa-quote-right"></i>
                 </div>
             </div>
 
-            <div class="group">
-                <div title='Header' ng-click="action('makeHeading')" class="item header">
+            <div class="group" ng-show="buttonVis.header || buttonVis.alignLeft || buttonVis.alignRight || buttonVis.alignCenter">
+                <div title='Header'
+                     ng-click="action('makeHeading')"
+                     ng-show="buttonVis.header"
+                     class="item header">
                     <i class="fa fa-header"></i>
                 </div>
-                <div title='Align Left' ng-click="action('alignLeft')" class="item aleft">
+                <div title='Align Left'
+                     ng-click="action('alignLeft')"
+                     ng-show="buttonVis.alignLeft"
+                     class="item aleft">
                     <i class="fa fa-align-left"></i>
                 </div>
-                <div title='Align Center' ng-click="action('alignCenter')" class="item acenter">
+                <div title='Align Center'
+                     ng-click="action('alignCenter')"
+                     ng-show="buttonVis.alignCenter"
+                     class="item acenter">
                     <i class="fa fa-align-center"></i>
                 </div>
-                <div title='Align Right' ng-click="action('alignRight')" class="item aright">
+                <div title='Align Right'
+                     ng-click="action('alignRight')"
+                     ng-show="buttonVis.alignRight"
+                     class="item aright">
                     <i class="fa fa-align-right"></i>
                 </div>
             </div>
 
-            <div class="group">
-                <div title='Undo' ng-click="action('undo')" class="item">
+            <div class="group" ng-show="buttonVis.undo || buttonVis.redo">
+                <div title='Undo'
+                     ng-click="action('undo')"
+                     ng-show="buttonVis.undo"
+                     class="item">
                     <i class="fa fa-undo"></i>
                 </div>
-                <div title='Redo' ng-click="action('redo')" class="item">
+                <div title='Redo'
+                     ng-click="action('redo')"
+                     ng-show="buttonVis.redo"
+                     class="item">
                     <i class="fa fa-repeat"></i>
                 </div>
             </div>
