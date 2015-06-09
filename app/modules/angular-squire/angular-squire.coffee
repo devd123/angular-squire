@@ -5,17 +5,21 @@ angular
             restrict: 'E'
             require: "ngModel"
             scope:
-                height: '@height',
-                width: '@width',
-                body: '=body',
-                placeholder: '@placeholder',
-                editorClass: '@editorClass',
+                height: '@'
+                width: '@'
+                body: '='
+                placeholder: '@'
+                editorClass: '@'
+                buttons: '@'
             replace: true
             transclude: true
             templateUrl: "/modules/angular-squire/editor.html"
 
             ### @ngInject ###
             controller: ($scope) ->
+
+                $scope.buttons = _.defaults($scope.buttons or {}, squireService.getButtonDefaults())
+
                 editorVisible = true
                 $scope.isEditorVisible = ->
                     return editorVisible
@@ -32,12 +36,14 @@ angular
                 LINK_DEFAULT = "http://"
                 IFRAME_CLASS = 'angular-squire-iframe'
 
+                HEADER_CLASS = 'h4'
+
                 editor = scope.editor = null
                 scope.data =
                     link: LINK_DEFAULT
 
                 updateModel = (value) ->
-                    value = squireService.onChange(value, editor)
+                    value = squireService.sanitize.input(value, editor)
                     scope.$evalAsync(->
                         ngModel.$setViewValue(value)
                         if ngModel.$isEmpty(value)
@@ -134,7 +140,7 @@ angular
                         haveInteraction = true
 
                     editor.addEventListener("willPaste", (e) ->
-                        squireService.sanitize(e, editor)
+                        squireService.sanitize.paste(e, editor)
                     )
 
                     editor.addEventListener("input", ->
@@ -166,6 +172,7 @@ angular
 
                         menubar.attr("class", "menu "+
                             p.split("BODY")[1]?.replace(/>|\.|html|body|div/ig, ' ')
+                            .replace(RegExp(HEADER_CLASS, 'g'), 'size')
                             .toLowerCase())
                     )
 
@@ -175,9 +182,15 @@ angular
                     editor.alignLeft = -> editor.setTextAlignment("left")
                     editor.alignJustify = -> editor.setTextAlignment("justify")
 
-                    editor.makeHeading = ->
-                        editor.setFontSize("2em")
-                        editor.bold()
+                    editor.makeHeading = () ->
+                        create = not menubar.hasClass('size')
+                        editor.forEachBlock((block) ->
+                            if create
+                                angular.element(block).addClass(HEADER_CLASS)
+                            else
+                                angular.element(block).removeClass(HEADER_CLASS)
+                        , true)
+                        return editor.focus()
 
                 ua = navigator.userAgent
                 isChrome = /Chrome/.test(ua) or /Safari/.test(ua)
@@ -256,9 +269,14 @@ angular
                             selection = iframe[0].contentWindow.getSelection()
                             selection.removeAllRanges()
                             selection.addRange(range)
-                        editor.makeLink(scope.data.link, {
+                        if scope.data.link.match(/^\s*?javascript:/i)
+                            linky = LINK_DEFAULT
+                        else
+                            linky = scope.data.link
+                            
+                        editor.makeLink(linky, {
                             target: '_blank',
-                            title: scope.data.link,
+                            title: linky,
                             rel: "nofollow"
                         })
                         scope.data.link = LINK_DEFAULT
@@ -308,17 +326,65 @@ angular
 
         }
     ).provider("squireService", [ () ->
-        dummysanitize = {clean_node: ((f)-> f)}
-        sanitizer = dummysanitize
+        buttonDefaults =
+            bold: true
+            italic: true
+            underline: true
+            link: true
+            ol: true
+            ul: true
+            quote: true
+            header: true
+            alignRight: true
+            alignLeft: true
+            alignCenter: true
+            undo: true
+            redo: true
+
+        defaultSanitize = new Sanitize(
+            # So far, only these elements are supported by this directive
+            elements: ['div', 'span', 'b', 'i', 'ul', 'ol', 'li', 'blockquote', 'a', 'p', 'br', 'u']
+            attributes:
+                '__ALL__': ['class']
+                a: ['href', 'title', 'target', 'rel']
+            protocols:
+                a: { href: ['ftp', 'http', 'https', 'mailto', 'gopher']}
+        )
+        sanitizer =
+            paste: defaultSanitize
+            input: defaultSanitize
+
+        doSanitize = true
 
         obj =
             onPaste: (e, editor) ->
             onChange: (val, editor) ->
                 return val
-            sanitize: (e, editor) ->
-                e.fragment = sanitizer.clean_node(e.fragment)
-
-                obj.onPaste(e, editor)
+            sanitize:
+                paste: (e, editor) ->
+                    e.fragment = sanitizer.paste.clean_node(e.fragment) if doSanitize
+                    obj.onPaste(e, editor)
+                input: (html, editor) ->
+                    if doSanitize
+                        fragment = document.createDocumentFragment()
+                        tmp = document.createElement('body')
+                        tmp.innerHTML = html
+                        while (child = tmp.firstChild)
+                            fragment.appendChild(child)
+                        fragment = sanitizer.input.clean_node(fragment)
+                        while (child = fragment.firstChild)
+                            tmp.appendChild(child)
+                        newHtml = tmp.innerHTML
+                        if html != newHtml
+                            editor.setHTML(newHtml)
+                            html = newHtml
+                    e = {html}
+                    obj.onChange(e, editor)
+                    return e.html
+            setButtonDefaults: (obj) ->
+                buttonDefaults = obj
+            getButtonDefaults: ->
+                return buttonDefaults
 
 
         @onPaste = (cb) ->
@@ -327,16 +393,26 @@ angular
         @onChange = (cb) ->
             obj.onChange = cb if cb
 
-        @sanitizeOptions = (opts) ->
-            sanitizer = new Sanitize(opts) if opts # https://github.com/gbirke/Sanitize.js
+        # https://github.com/gbirke/Sanitize.js
+        @sanitizeOptions =
+            paste: (opts) ->
+                sanitizer.paste = new Sanitize(opts) if opts
+            input: (opts) ->
+                sanitizer.input = new Sanitize(opts) if opts
+
 
         @strictPaste = (enable) ->
             if enable
-                sanitizer = new Sanitize({
-                    elements:   ['div', 'span', 'b', 'i']
+                sanitizer.paste = new Sanitize({
+                    elements: ['div', 'span', 'b', 'i', 'u', 'br', 'p']
                 })
             else
-                sanitizer = dummysanitize
+                sanitizer.paste = defaultSanitize
+
+        # sanitize any html that goes into the editor
+        # by default only things you can enter in the editor are allowed (helps with xss / evil)
+        @enableSanitizer = (enable=true) ->
+            doSanitize = enable
 
         @$get = ->
             return obj
