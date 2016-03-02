@@ -2,11 +2,13 @@
   "name": "angular-squire",
   "version": "2.0.0",
   "description": "angularjs directive for squire rich text editor",
-  "main": "dist/scripts/angular-squire.js",
-  "dependencies": {
-  },
+  "main": "dist/angular-squire.js",
   "scripts": {
-    "build": "gulp test"
+    "build_icons": "rm -f src/icons.js && for f in src/icons/*.svg; do basename=${f/src\\/icons\\//}; echo \"export const ${basename/.svg/} = \\`$(cat $f)\\`;\" >> src/icons.js; done",
+    "build_template": "echo 'export default `'\"$(node_modules/html-minifier/cli.js --collapse-whitespace src/template.html)\"'`;' > src/template.js",
+    "build": "rm -rf dist && mkdir dist && ./node_modules/node-sass/bin/node-sass src/angular-squire.scss dist/angular-squire.css && npm run build_icons && npm run build_template && node_modules/babel/bin/babel.js src --stage 0 --out-dir dist && cp src/angular-squire.scss dist/",
+    "watch": "npm run build_icons && npm run build_template && echo 'export default `'\"$(node_modules/html-minifier/cli.js --collapse-whitespace src/template.html)\"'`;' > src/template.js & ./node_modules/node-sass/bin/node-sass -w src/angular-squire.scss dist/angular-squire.css & node_modules/babel/bin/babel.js src --stage 0 --watch --out-dir dist",
+    "install": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -14,7 +16,13 @@
   },
   "author": "HourlyNerd Inc",
   "license": "MIT",
+  "dependencies": {
+    "squire-rte": "~1.4.2"
+  },
   "devDependencies": {
-    "coffee-script": "1.10.0"
+    "coffee-script": "1.10.0",
+    "babel": "5.8.34",
+    "node-sass": "3.4.2",
+    "html-minifier": "1.2.0"
   }
 }
