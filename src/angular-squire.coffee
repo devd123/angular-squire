@@ -31,7 +31,8 @@ if typeof SQ != "function"
                 buttons = {}
                 if $scope.buttons
                     buttons = $scope.$eval($scope.buttons)
-                $scope.buttonVis = _.defaults(buttons or {}, squireService.getButtonDefaults())
+
+                $scope.buttonVis = angular.extend({}, squireService.getButtonDefaults(), buttons or {})
 
                 editorVisible = true
                 $scope.isEditorVisible = ->
@@ -129,7 +130,7 @@ if typeof SQ != "function"
 
                 updateStylesToMatch = (doc) ->
                     head = doc.head
-                    _.each(angular.element('link[rel="stylesheet"]'), (el) ->
+                    angular.forEach(angular.element('link[rel="stylesheet"]'), (el) ->
                         a = doc.createElement('link')
                         a.setAttribute('href',  el.href)
                         a.setAttribute('type',  'text/css')
